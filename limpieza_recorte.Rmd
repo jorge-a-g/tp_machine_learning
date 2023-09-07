@@ -1,0 +1,124 @@
+---
+title: "Tp_PPyML"
+author: "González, Jorge / Shifres, Juan"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+ 
+library(readr)
+library(dplyr)
+library(lubridate)
+
+```
+
+Casos COVID-19
+
+Portal de datos Abiertos del Ministerio de Salud de La Nación
+
+http://datos.salud.gob.ar
+
+Notificaciones realizadas por efectores de salud al Sistema Nacional de Vigilancia de la Salud al evento Caso Internado y/o fallecido por COVID-19 
+
+## Lectura de los datos
+
+```{r, echo=FALSE}
+## Lectura de los archivos
+covid19_internados_fallecidos <- read_csv("datos/Covid19_Internados_y_Fallecidos.csv")
+datos <- read_csv("datos/Covid19Casos.csv")
+```
+
+## Dataset
+### Estructura
+```{r}
+#visualizo dataset, primera impresión
+head(covid19_internados_fallecidos)
+```
+
+Dimensión:
+```{r}
+dim(covid19_internados_fallecidos)
+```
+
+Número de columnas y filas:
+```{r}
+ncol(covid19_internados_fallecidos)
+nrow(covid19_internados_fallecidos)
+```
+
+## EDA & dataviz
+```{r}
+##DESCRIPCIÓN
+#columnas, nombres de variables
+names(covid19_internados_fallecidos)
+```
+
+Agrego el campo "sexo" que interesa para el análisis pero que está en otra tabla.
+```{r}
+df_filtrado <- left_join(df_filtrado, datos, by = join_by(IDEVENTOCASO == id_evento_caso))
+```
+
+```{r}
+names(df_filtrado)
+select()
+```
+
+
+Limpieza de datos: me quedo solo con las variables que servirán para el análisis para achicar el tamaño del dataset.
+```{r}
+df_filtrado <- df_filtrado |> 
+  select(IDEVENTOCASO, 
+         EDAD_DIAGNOSTICO, 
+         PROVINCIA_RESIDENCIA, 
+         DEPARTAMENTO_RESIDENCIA, 
+         FECHA_APERTURA, 
+         SEPI_APERTURA, 
+         FIS, 
+         FECHA_INTERNACION, 
+         CUIDADO_INTENSIVO, 
+         FECHA_CUI_INTENSIVOS, 
+         FALLECIDO, 
+         FECHA_FALLECIMIENTO, 
+         PROVINCIA_CARGA, 
+         CLASIFICACION_ALGORITMO, 
+         sexo)
+```
+
+Verifico el rango de edades
+```{r}
+range(df_filtrado$EDAD_DIAGNOSTICO, na.rm = T)
+```
+
+Elimino los registros con edades "imposibles" o presuntamente mal registradas
+```{r}
+df_filtrado <- df_filtrado |> 
+  filter(EDAD_DIAGNOSTICO < 130)
+```
+
+Transformo las fechas.
+```{r}
+df_filtrado <- df_filtrado |> 
+  mutate(FECHA_APERTURA = ymd(FECHA_APERTURA), 
+            FIS = ymd(FIS), 
+            FECHA_INTERNACION = ymd(FECHA_INTERNACION), 
+            FECHA_CUI_INTENSIVOS = ymd(FECHA_CUI_INTENSIVOS), 
+            FECHA_FALLECIMIENTO = ymd(FECHA_FALLECIMIENTO))
+```
+
+Agrego tres columnas que servirán para el análisis. Una con el tiempo transcurrido entre la aparición de síntomas y la internación, y otra con el tiempo entre la internación y el ingreso a cuidados intensivos y otra con el tiempo entre el ingreso a cuidados intensivos y el fallecimiento.
+```{r}
+df_filtrado <- df_filtrado |> 
+  mutate(dias_fis_internac = FECHA_INTERNACION - FIS,
+         dias_internac_cui = FECHA_CUI_INTENSIVOS - FECHA_INTERNACION, 
+         dias_cui_fallecimiento = FECHA_FALLECIMIENTO - FECHA_CUI_INTENSIVOS)
+```
+
+
+Guardo el dataframe resumido y con las transformaciones
+```{r}
+write_csv(df_filtrado, file = "datos/df_filtrado.csv")
+```
+
+
+

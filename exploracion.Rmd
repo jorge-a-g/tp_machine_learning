@@ -1,0 +1,39 @@
+---
+title: "exploracion"
+author: "González, Jorge / Shifres, Juan"
+date: "2023-08-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(readr)
+```
+
+```{r}
+datos <- read.csv("datos/Covid19Casos.csv")
+```
+
+```{r}
+#listo los nombres de variables
+names(datos)
+```
+
+```{r}
+# resumen de los estadísticos del dataset
+summary(datos)
+```
+
+```{r}
+# también se pueden ver de manera gráfica
+boxplot(datos$edad, outline = F)
+```
+
+
+boxplot(ozono ~ mes, data = ozonotabla, xlab = "meses", ylab = "ozono", main = "ozono por mes",
+        col = c("orange", "red", "blue", "pink"))
+
+hist(ozonotabla$ozono, col = "blue")
+
+intervalos <- c(seq(0, 171, by = 20))
