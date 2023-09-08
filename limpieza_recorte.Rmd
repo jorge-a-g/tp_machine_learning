@@ -54,6 +54,31 @@ nrow(covid19_internados_fallecidos)
 names(covid19_internados_fallecidos)
 ```
 
+validación de Codigos de Provincia y etiquetas
+
+```{r}
+
+provincias<-read_csv("datos/provincias.csv")
+
+provincias[provincias == "Ciudad Autónoma de Buenos Aires"] <- "CABA"
+provincias[provincias == "Tierra del Fuego, Antártida e Islas del Atlántico Sur"] <- "Tierra del Fuego"
+
+covid19_internados_fallecidos %>% 
+  select(ID_PROV_INDEC_RESIDENCIA)  %>% 
+  filter(!(covid19_internados_fallecidos$ID_PROV_INDEC_RESIDENCIA %in% listCodProv) & ID_PROV_INDEC_RESIDENCIA!=0)
+
+covid19_internados_fallecidos %>% 
+  select(PROVINCIA_RESIDENCIA)  %>% 
+  filter(!(covid19_internados_fallecidos$PROVINCIA_RESIDENCIA %in% provincias$nombre) & covid19_internados_fallecidos$PROVINCIA_RESIDENCIA !="*sin dato*")
+
+#nos encontramos con un dato que figura Ministerio de Salud, lo reemplazamos por CABA
+
+covid19_internados_fallecidos["PROVINCIA_RESIDENCIA"][covid19_internados_fallecidos["PROVINCIA_RESIDENCIA"] == "Ministerio de Salud de la Nación"] <- "CABA"
+
+
+```
+
+
 Agrego el campo "sexo" que interesa para el análisis pero que está en otra tabla.
 ```{r}
 df_filtrado <- left_join(df_filtrado, datos, by = join_by(IDEVENTOCASO == id_evento_caso))
@@ -63,6 +88,7 @@ df_filtrado <- left_join(df_filtrado, datos, by = join_by(IDEVENTOCASO == id_eve
 names(df_filtrado)
 select()
 ```
+
 
 
 Limpieza de datos: me quedo solo con las variables que servirán para el análisis para achicar el tamaño del dataset.
