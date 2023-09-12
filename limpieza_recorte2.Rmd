@@ -1,0 +1,69 @@
+---
+title: "Tp_PPyML"
+author: "González, Jorge / Shifres, Juan"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+ 
+library(readr)
+library(dplyr)
+library(lubridate)
+
+```
+
+```{r}
+## Lectura del archivo
+
+covid19_filtrado <- read_csv("datos/df_filtrado.csv")
+
+```
+
+
+
+Agrupamos por la variable "FALLECIDO"
+
+```{r}
+covid19_filtrado |>
+  group_by(FALLECIDO) |>
+  summarise(total_count=n())
+```
+
+la cantidad de fallecidos es de 5666
+
+verificamos la cantidad de fallecidos con la variable "FECHA_FALLECIMIENTO"
+
+
+
+```{r}
+covid19_filtrado |>
+  group_by(FECHA_FALLECIMIENTO) |>
+  filter (!is.na(FECHA_FALLECIMIENTO)) |>
+  nrow()
+
+```
+
+da la misma cantidad, 5666 casos
+
+
+Con respecto a la variable "Fallecido" realizamos el reemplazo de "ND" y "NA" por "NO"
+
+
+```{r}
+
+covid19_filtrado$FALLECIDO[covid19_filtrado$FALLECIDO == "ND"] <- "NO"
+
+covid19_filtrado$FALLECIDO[is.na(covid19_filtrado$FALLECIDO)] <- "NO"
+
+```
+
+
+
+
+
+
+
+
+
+
