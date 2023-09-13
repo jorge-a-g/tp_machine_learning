@@ -59,6 +59,78 @@ covid19_filtrado$FALLECIDO[is.na(covid19_filtrado$FALLECIDO)] <- "NO"
 ```
 
 
+________________________________________________________________________________________________
+
+Agrupamos por la variable "CUIDADO_INTENSIVO"
+
+```{r}
+
+covid19_filtrado |>
+  group_by(CUIDADO_INTENSIVO) |>
+  summarise(total_count=n())
+
+```
+
+206851 observaciones NA
+8776 observaciones afirmativas que tuvieron CUIDADOS INTENSIVOS
+
+contamos las observaciones con fecha en FECHA_CUI_INTENSIVOS
+```{r}
+covid19_filtrado |>
+  group_by(FECHA_CUI_INTENSIVOS) |>
+  filter (!is.na(FECHA_CUI_INTENSIVOS)) |>
+  nrow()
+
+```
+8803 observaciones con Fecha de CUIDADOS INTENSIVOS, lo cuál no coinciden con la variable 
+CUIDADO_INTENSIVO con valor 'SI'
+
+
+realizamos los ajustes en la Variable CUIDADO_INTENSIVO en SI, cuando hay fechas cargadas en la variable FECHA_CUI_INTENSIVOS (27 casos)
+
+
+```{r}
+covid19_filtrado$CUIDADO_INTENSIVO[!is.na(covid19_filtrado$FECHA_CUI_INTENSIVOS) &  covid19_filtrado$CUIDADO_INTENSIVO=='NO'] <- "SI"
+
+covid19_filtrado$CUIDADO_INTENSIVO[!is.na(covid19_filtrado$FECHA_CUI_INTENSIVOS) & is.na(covid19_filtrado$CUIDADO_INTENSIVO)] <- "SI"
+
+covid19_filtrado$CUIDADO_INTENSIVO[is.na(covid19_filtrado$FECHA_CUI_INTENSIVOS)] <- "NO"
+
+```
+
+
+
+
+
+
+Agrupamos nuevamente por la variable "CUIDADO_INTENSIVO" para controlar los cambios
+
+```{r}
+
+covid19_filtrado |>
+  group_by(CUIDADO_INTENSIVO) |>
+  summarise(total_count=n())
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
