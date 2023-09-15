@@ -8,19 +8,14 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
  
-library(readr)
-library(dplyr)
-library(lubridate)
-
+library(tidyverse)
 ```
 
-Casos COVID-19
+## Casos COVID-19
 
-Portal de datos Abiertos del Ministerio de Salud de La Nación
+Datos obtenidos del Portal de [Datos Abiertos del Ministerio de Salud de La Nación](http://datos.salud.gob.ar).
 
-http://datos.salud.gob.ar
-
-Notificaciones realizadas por efectores de salud al Sistema Nacional de Vigilancia de la Salud al evento Caso Internado y/o fallecido por COVID-19 
+Consiste en notificaciones realizadas por efectores de salud al Sistema Nacional de Vigilancia de la Salud (SNVS) al evento Caso Internado y/o fallecido por COVID-19. 
 
 ## Lectura de los datos
 
@@ -42,20 +37,13 @@ Dimensión:
 dim(covid19_internados_fallecidos)
 ```
 
-Número de columnas y filas:
-```{r}
-ncol(covid19_internados_fallecidos)
-nrow(covid19_internados_fallecidos)
-```
-
-## EDA & dataviz
 ```{r}
 ##DESCRIPCIÓN
 #columnas, nombres de variables
 names(covid19_internados_fallecidos)
 ```
 
-validación de Codigos de Provincia y etiquetas
+Validación de Códigos de Provincia y etiquetas
 
 ```{r warning=FALSE}
 
@@ -142,9 +130,6 @@ covid19_internados_fallecidos$CUIDADO_INTENSIVO[is.na(covid19_internados_falleci
 
 ```
 
-
-
-
 Limpieza de datos: me quedo solo con las variables que servirán para el análisis para achicar el tamaño del dataset.
 ```{r}
 df_filtrado <- covid19_internados_fallecidos |> 
@@ -161,9 +146,32 @@ df_filtrado <- covid19_internados_fallecidos |>
          FALLECIDO, 
          FECHA_FALLECIMIENTO, 
          PROVINCIA_CARGA, 
-         CLASIFICACION_ALGORITMO, 
+         CLASIFICACION_ALGORITMO 
          )
 ```
+
+## Descripción de las variables que conservamos: 
+
+- IDEVENTOCASO: identificador único del evento/caso 
+- EDAD_DIAGNOSTICO: edad del paciente al momento del diagnóstico 
+- PROVINCIA_RESIDENCIA: nombre de la provincia de residencia del paciente 
+- DEPARTAMENTO_RESIDENCIA: nombre del departamento/partido de residencia del paciente  
+- FECHA_APERTURA: fecha en la que se inició el registró del evento/caso 
+- SEPI_APERTURA: semana epidemiológica en que se inició el registro del event/caso 
+- FIS: fecha en que el paciente comenzó con los síntomas  
+- FECHA_INTERNACION: fecha de internación  
+- CUIDADO_INTENSIVO:  esta variable indica si el caso requirió cuidados intensivos 
+- FECHA_CUI_INTENSIVOS: fecha de ingreso en la unidad de cuidados intensivos 
+- FALLECIDO: esta variable indica si se trata de un fallecido  
+- FECHA_FALLECIMIENTO: fecha de fallecimiento  
+- PROVINCIA_CARGA: provincia en que se realizó la carga del evento/caso al SNVS 
+- CLASIFICACION_ALGORITMO: algoritmo de clasificación del evento/caso
+
+## Tipo de datos en cada variable
+```{r}
+glimpse(df_filtrado)
+```
+
 
 Verifico el rango de edades
 ```{r}
@@ -175,8 +183,6 @@ Elimino los registros con edades "imposibles" o presuntamente mal registradas
 df_filtrado <- df_filtrado |> 
   filter(EDAD_DIAGNOSTICO < 130)
 ```
-
-
 
 Transformo las fechas.
 ```{r warning=FALSE}
@@ -195,16 +201,6 @@ df_filtrado <- df_filtrado |>
          dias_internac_cui = FECHA_CUI_INTENSIVOS - FECHA_INTERNACION, 
          dias_cui_fallecimiento = FECHA_FALLECIMIENTO - FECHA_CUI_INTENSIVOS)
 ```
-
-
-
-
-
-
-
-
-
-
 
 Guardo el dataframe resumido y con las transformaciones
 ```{r}
