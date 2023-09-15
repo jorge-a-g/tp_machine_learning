@@ -367,12 +367,10 @@ Internado y/o fallecido por COVID-19.</p>
 <h2>Lectura de los datos</h2>
 <pre class="r"><code>## Lectura de los archivos
 covid19_internados_fallecidos &lt;- read_csv(&quot;datos/Covid19_Internados_y_Fallecidos.csv&quot;)</code></pre>
-<pre><code>## Rows: 257395 Columns: 19
-## ── Column specification ────────────────────────────────────────────────────────
+<pre><code>## Rows: 257395 Columns: 19── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr (16): EVENTO, PAIS_RESIDENCIA, ID_PROV_INDEC_RESIDENCIA, PROVINCIA_RESID...
 ## dbl  (3): IDEVENTOCASO, EDAD_DIAGNOSTICO, SEPI_APERTURA
-## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
@@ -401,15 +399,6 @@ head(covid19_internados_fallecidos)</code></pre>
 <p>Dimensión:</p>
 <pre class="r"><code>dim(covid19_internados_fallecidos)</code></pre>
 <pre><code>## [1] 257395     19</code></pre>
-<p>Número de columnas y filas:</p>
-<pre class="r"><code>ncol(covid19_internados_fallecidos)</code></pre>
-<pre><code>## [1] 19</code></pre>
-<pre class="r"><code>nrow(covid19_internados_fallecidos)</code></pre>
-<pre><code>## [1] 257395</code></pre>
-</div>
-</div>
-<div id="eda-dataviz" class="section level2">
-<h2>EDA &amp; dataviz</h2>
 <pre class="r"><code>##DESCRIPCIÓN
 #columnas, nombres de variables
 names(covid19_internados_fallecidos)</code></pre>
@@ -423,14 +412,12 @@ names(covid19_internados_fallecidos)</code></pre>
 ## [15] &quot;FALLECIDO&quot;                 &quot;FECHA_FALLECIMIENTO&quot;      
 ## [17] &quot;ID_PROV_INDEC_CARGA&quot;       &quot;PROVINCIA_CARGA&quot;          
 ## [19] &quot;CLASIFICACION_ALGORITMO&quot;</code></pre>
-<p>validación de Codigos de Provincia y etiquetas</p>
+<p>Validación de Códigos de Provincia y etiquetas</p>
 <pre class="r"><code>provincias&lt;-read_csv(&quot;datos/provincias.csv&quot;)</code></pre>
-<pre><code>## Rows: 24 Columns: 9
-## ── Column specification ────────────────────────────────────────────────────────
+<pre><code>## Rows: 24 Columns: 9── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr (7): categoria, fuente, id, iso_id, iso_nombre, nombre, nombre_completo
 ## dbl (2): centroide_lat, centroide_lon
-## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <pre class="r"><code>provincias[provincias == &quot;Ciudad Autónoma de Buenos Aires&quot;] &lt;- &quot;CABA&quot;
@@ -515,6 +502,7 @@ el análisis para achicar el tamaño del dataset.</p>
          PROVINCIA_CARGA, 
          CLASIFICACION_ALGORITMO 
          )</code></pre>
+</div>
 </div>
 <div id="descripción-de-las-variables-que-conservamos" class="section level2">
 <h2>Descripción de las variables que conservamos:</h2>
