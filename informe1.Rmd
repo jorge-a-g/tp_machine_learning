@@ -1,0 +1,127 @@
+---
+title: "informe1"
+author: "González, Jorge / Shifres, Juan"
+date: "2023-09-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+```
+
+```{r}
+datos <- read.csv("datos/df_filtrado.csv")
+```
+
+```{r}
+glimpse(datos)
+```
+
+Transformo las fechas.
+```{r warning=FALSE}
+datos <- datos |> 
+  mutate(FECHA_APERTURA = as_date(FECHA_APERTURA, "ymd"), 
+            FIS = as_date(FIS, "ymd"), 
+            FECHA_INTERNACION = as_date(FECHA_INTERNACION, "ymd"), 
+            FECHA_CUI_INTENSIVOS = as_date(FECHA_CUI_INTENSIVOS, "ymd"), 
+            FECHA_FALLECIMIENTO = as_date(FECHA_FALLECIMIENTO, "ymd"))
+```
+
+```{r}
+# Detección si hay alguna fila incompleta
+any(!complete.cases(datos))
+```
+
+```{r}
+# Número de datos ausentes por variable
+map_dbl(datos, .f = function(x){sum(is.na(x))})
+```
+
+```{r}
+ggplot(data = datos, aes(x = CUIDADO_INTENSIVO, y = after_stat(count), fill = CUIDADO_INTENSIVO)) +
+  geom_bar() +
+  labs(title = "Cuidados intensivos") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+```{r}
+# Tabla de frecuencias 
+table(datos$CUIDADO_INTENSIVO)
+```
+
+```{r}
+prop.table(table(datos$CUIDADO_INTENSIVO)) |> round(digits = 2)
+```
+
+
+```{r}
+ggplot(data = datos, aes(x = FALLECIDO, y = after_stat(count), fill = FALLECIDO)) +
+  geom_bar() +
+  labs(title = "Fallecimientos") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+```{r}
+# Tabla de frecuencias 
+table(datos$FALLECIDO)
+```
+
+```{r}
+prop.table(table(datos$FALLECIDO)) |> round(digits = 2)
+```
+
+```{r}
+# Estadísticos de la edad de los supervivientes y fallecidos
+datos |> 
+  filter(!is.na(EDAD_DIAGNOSTICO)) |> 
+  group_by(FALLECIDO) |> 
+          summarise(media = mean(EDAD_DIAGNOSTICO),
+                    mediana = median(EDAD_DIAGNOSTICO),
+                    min = min(EDAD_DIAGNOSTICO),
+                    max = max(EDAD_DIAGNOSTICO))
+```
+
+```{r}
+datos <- datos |> 
+  mutate(grupo_etario = case_when(EDAD_DIAGNOSTICO <= 10  ~ "niño",
+                                EDAD_DIAGNOSTICO > 10 & EDAD_DIAGNOSTICO <= 60  ~ "adulto",
+                                EDAD_DIAGNOSTICO > 60 ~ "adulto mayor"))
+datos$grupo_etario <- as.factor(datos$grupo_etario)
+```
+
+```{r}
+ggplot(data = datos, aes(x = grupo_etario, y = after_stat(count), fill = FALLECIDO)) +
+  geom_bar() +
+  labs(title = "grupo_etario") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+```{r}
+# Tabla de frecuencias relativas de fallecidos por grupo etario
+prop.table(table(datos$grupo_etario, datos$FALLECIDO), margin = 1) |> 
+  round(digits = 2)
+```
+
+```{r}
+ggplot(data = datos, aes(x = PROVINCIA_RESIDENCIA, y = after_stat(count), fill = FALLECIDO)) +
+  geom_bar() +
+  labs(title = "Fallecimientos por provincia") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  coord_flip()
+```
+
+```{r}
+# Tabla de frecuencias relativas de internados en cuidados intensivos por grupo etareo
+prop.table(table(datos$PROVINCIA_RESIDENCIA, datos$FALLECIDO), margin = 1) |> 
+  round(digits = 2)
+```
+
+
+
+
