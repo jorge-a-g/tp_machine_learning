@@ -1,0 +1,214 @@
+---
+title: "Tp_PPyML"
+author: "González, Jorge / Shifres, Juan"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+ 
+library(readr)
+library(dplyr)
+library(lubridate)
+
+```
+
+Casos COVID-19
+
+Portal de datos Abiertos del Ministerio de Salud de La Nación
+
+http://datos.salud.gob.ar
+
+Notificaciones realizadas por efectores de salud al Sistema Nacional de Vigilancia de la Salud al evento Caso Internado y/o fallecido por COVID-19 
+
+## Lectura de los datos
+
+```{r warning=FALSE}
+## Lectura de los archivos
+covid19_internados_fallecidos <- read_csv("datos/Covid19_Internados_y_Fallecidos.csv")
+
+```
+
+## Dataset
+### Estructura
+```{r}
+#visualizo dataset, primera impresión
+head(covid19_internados_fallecidos)
+```
+
+Dimensión:
+```{r}
+dim(covid19_internados_fallecidos)
+```
+
+Número de columnas y filas:
+```{r}
+ncol(covid19_internados_fallecidos)
+nrow(covid19_internados_fallecidos)
+```
+
+## EDA & dataviz
+```{r}
+##DESCRIPCIÓN
+#columnas, nombres de variables
+names(covid19_internados_fallecidos)
+```
+
+validación de Codigos de Provincia y etiquetas
+
+```{r warning=FALSE}
+
+provincias<-read_csv("datos/provincias.csv")
+
+provincias[provincias == "Ciudad Autónoma de Buenos Aires"] <- "CABA"
+provincias[provincias == "Tierra del Fuego, Antártida e Islas del Atlántico Sur"] <- "Tierra del Fuego"
+
+covid19_internados_fallecidos |> 
+  select(PROVINCIA_RESIDENCIA)  |> 
+  filter(!(covid19_internados_fallecidos$PROVINCIA_RESIDENCIA %in% provincias$nombre) & covid19_internados_fallecidos$PROVINCIA_RESIDENCIA !="*sin dato*")
+
+#nos encontramos con un dato que figura Ministerio de Salud, lo reemplazamos por CABA
+
+covid19_internados_fallecidos["PROVINCIA_RESIDENCIA"][covid19_internados_fallecidos["PROVINCIA_RESIDENCIA"] == "Ministerio de Salud de la Nación"] <- "CABA"
+
+
+```
+
+Agrupamos por la variable "FALLECIDO"
+
+```{r}
+covid19_internados_fallecidos |>
+  group_by(FALLECIDO) |>
+  summarise(total_count=n())
+```
+
+
+verificamos la cantidad de fallecidos con la variable "FECHA_FALLECIMIENTO"
+
+
+```{r}
+covid19_internados_fallecidos |>
+  group_by(FECHA_FALLECIMIENTO) |>
+  filter (!is.na(FECHA_FALLECIMIENTO)) |>
+  nrow()
+```
+Con respecto a la variable "Fallecido" realizamos el reemplazo de "ND" y "NA" por "NO"
+
+```{r}
+covid19_internados_fallecidos$FALLECIDO[covid19_internados_fallecidos$FALLECIDO == "ND"] <- "NO"
+
+covid19_internados_fallecidos$FALLECIDO[is.na(covid19_internados_fallecidos$FALLECIDO)] <- "NO"
+```
+
+`___________________________________________________________________________________________________________
+
+
+Agrupamos por la variable "CUIDADO_INTENSIVO"
+
+```{r}
+
+covid19_internados_fallecidos |>
+  group_by(CUIDADO_INTENSIVO) |>
+  summarise(total_count=n())
+
+```
+
+207200 observaciones NA
+8814 observaciones afirmativas que tuvieron CUIDADOS INTENSIVOS
+
+contamos las observaciones con fecha en FECHA_CUI_INTENSIVOS
+```{r}
+covid19_internados_fallecidos |>
+  group_by(FECHA_CUI_INTENSIVOS) |>
+  filter (!is.na(FECHA_CUI_INTENSIVOS)) |>
+  nrow()
+
+```
+8841 observaciones con Fecha de CUIDADOS INTENSIVOS, lo cuál no coinciden con la variable 
+CUIDADO_INTENSIVO con valor 'SI'
+
+
+realizamos los ajustes en la Variable CUIDADO_INTENSIVO en SI, cuando hay fechas cargadas en la variable FECHA_CUI_INTENSIVOS
+
+```{r}
+
+covid19_internados_fallecidos$CUIDADO_INTENSIVO[!is.na(covid19_internados_fallecidos$FECHA_CUI_INTENSIVOS) &  covid19_internados_fallecidos$CUIDADO_INTENSIVO=='NO'] <- "SI"
+
+covid19_internados_fallecidos$CUIDADO_INTENSIVO[!is.na(covid19_internados_fallecidos$FECHA_CUI_INTENSIVOS) & is.na(covid19_internados_fallecidos$CUIDADO_INTENSIVO)] <- "SI"
+
+covid19_internados_fallecidos$CUIDADO_INTENSIVO[is.na(covid19_internados_fallecidos$FECHA_CUI_INTENSIVOS)] <- "NO"
+
+
+```
+
+
+
+
+Limpieza de datos: me quedo solo con las variables que servirán para el análisis para achicar el tamaño del dataset.
+```{r}
+df_filtrado <- covid19_internados_fallecidos |> 
+  select(IDEVENTOCASO, 
+         EDAD_DIAGNOSTICO, 
+         PROVINCIA_RESIDENCIA, 
+         DEPARTAMENTO_RESIDENCIA, 
+         FECHA_APERTURA, 
+         SEPI_APERTURA, 
+         FIS, 
+         FECHA_INTERNACION, 
+         CUIDADO_INTENSIVO, 
+         FECHA_CUI_INTENSIVOS, 
+         FALLECIDO, 
+         FECHA_FALLECIMIENTO, 
+         PROVINCIA_CARGA, 
+         CLASIFICACION_ALGORITMO, 
+         )
+```
+
+Verifico el rango de edades
+```{r}
+range(df_filtrado$EDAD_DIAGNOSTICO, na.rm = T)
+```
+
+Elimino los registros con edades "imposibles" o presuntamente mal registradas
+```{r}
+df_filtrado <- df_filtrado |> 
+  filter(EDAD_DIAGNOSTICO < 130)
+```
+
+
+
+Transformo las fechas.
+```{r warning=FALSE}
+df_filtrado <- df_filtrado |> 
+  mutate(FECHA_APERTURA = ymd(FECHA_APERTURA), 
+            FIS = ymd(FIS), 
+            FECHA_INTERNACION = ymd(FECHA_INTERNACION), 
+            FECHA_CUI_INTENSIVOS = ymd(FECHA_CUI_INTENSIVOS), 
+            FECHA_FALLECIMIENTO = ymd(FECHA_FALLECIMIENTO))
+```
+
+Agrego tres columnas que servirán para el análisis. Una con el tiempo transcurrido entre la aparición de síntomas y la internación, y otra con el tiempo entre la internación y el ingreso a cuidados intensivos y otra con el tiempo entre el ingreso a cuidados intensivos y el fallecimiento.
+```{r}
+df_filtrado <- df_filtrado |> 
+  mutate(dias_fis_internac = FECHA_INTERNACION - FIS,
+         dias_internac_cui = FECHA_CUI_INTENSIVOS - FECHA_INTERNACION, 
+         dias_cui_fallecimiento = FECHA_FALLECIMIENTO - FECHA_CUI_INTENSIVOS)
+```
+
+
+
+
+
+
+
+
+
+
+
+Guardo el dataframe resumido y con las transformaciones
+```{r}
+write_csv(df_filtrado, file = "datos/df_filtrado.csv")
+```
+
+
+
