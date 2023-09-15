@@ -9,10 +9,12 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library(readr)
+library(dplyr)
+library(lubridate)
 ```
 
 ```{r}
-datos <- read.csv("datos/Covid19Casos.csv")
+datos <- read.csv("datos/df_filtrado.csv")
 ```
 
 ```{r}
@@ -25,15 +27,32 @@ names(datos)
 summary(datos)
 ```
 
+Transformo las fechas.
 ```{r}
-# también se pueden ver de manera gráfica
-boxplot(datos$edad, outline = F)
+datos <- datos |> 
+  mutate(FECHA_APERTURA = ymd(FECHA_APERTURA), 
+            FIS = ymd(FIS), 
+            FECHA_INTERNACION = ymd(FECHA_INTERNACION), 
+            FECHA_CUI_INTENSIVOS = ymd(FECHA_CUI_INTENSIVOS), 
+            FECHA_FALLECIMIENTO = ymd(FECHA_FALLECIMIENTO))
 ```
 
+```{r}
+boxplot(datos$EDAD_DIAGNOSTICO, outline = F)
+```
 
-boxplot(ozono ~ mes, data = ozonotabla, xlab = "meses", ylab = "ozono", main = "ozono por mes",
-        col = c("orange", "red", "blue", "pink"))
+```{r}
+hist(datos$EDAD_DIAGNOSTICO)
+```
 
-hist(ozonotabla$ozono, col = "blue")
+```{r}
+hist(datos$SEPI_APERTURA)
+```
+Acá vemos que el pico se produce a partir de la semana epidemiológica 24 (junio) con lo cual coincide con el comienzo de la época invernal.
 
-intervalos <- c(seq(0, 171, by = 20))
+
+
+
+
+
+

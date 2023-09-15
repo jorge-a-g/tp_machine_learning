@@ -81,7 +81,7 @@ sum(any(is.na(covid19_internados_fallecidos$EDAD_DIAGNOSTICO)))
 
 
 covid19_internados_fallecidos|> 
-  filter(!is.na(EDAD_DIAGNOSTICO)) |> 
+  filter(!is.na(EDAD_DIAGNOSTICO) & (EDAD_DIAGNOSTICO < 130)) |> 
   group_by(EDAD_DIAGNOSTICO)|>
   summarise(count=n())|>
   ggplot(aes(x=EDAD_DIAGNOSTICO, fill=count))+
