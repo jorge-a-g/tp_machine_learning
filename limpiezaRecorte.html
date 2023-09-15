@@ -564,11 +564,11 @@ registradas</p>
   filter(EDAD_DIAGNOSTICO &lt; 130)</code></pre>
 <p>Transformo las fechas.</p>
 <pre class="r"><code>df_filtrado &lt;- df_filtrado |&gt; 
-  mutate(FECHA_APERTURA = ymd(FECHA_APERTURA), 
-            FIS = ymd(FIS), 
-            FECHA_INTERNACION = ymd(FECHA_INTERNACION), 
-            FECHA_CUI_INTENSIVOS = ymd(FECHA_CUI_INTENSIVOS), 
-            FECHA_FALLECIMIENTO = ymd(FECHA_FALLECIMIENTO))</code></pre>
+  mutate(FECHA_APERTURA = as_date(FECHA_APERTURA, &quot;ymd&quot;), 
+            FIS = as_date(FIS, &quot;ymd&quot;), 
+            FECHA_INTERNACION = as_date(FECHA_INTERNACION, &quot;ymd&quot;), 
+            FECHA_CUI_INTENSIVOS = as_date(FECHA_CUI_INTENSIVOS, &quot;ymd&quot;), 
+            FECHA_FALLECIMIENTO = as_date(FECHA_FALLECIMIENTO, &quot;ymd&quot;))</code></pre>
 <p>Agrego tres columnas que servirán para el análisis. Una con el tiempo
 transcurrido entre la aparición de síntomas y la internación, y otra con
 el tiempo entre la internación y el ingreso a cuidados intensivos y otra
@@ -579,7 +579,7 @@ fallecimiento.</p>
          dias_internac_cui = FECHA_CUI_INTENSIVOS - FECHA_INTERNACION, 
          dias_cui_fallecimiento = FECHA_FALLECIMIENTO - FECHA_CUI_INTENSIVOS)</code></pre>
 <p>Guardo el dataframe resumido y con las transformaciones</p>
-<pre class="r"><code>write_csv(df_filtrado, file = &quot;datos/df_filtrado.csv&quot;)</code></pre>
+<pre class="r"><code>#write_csv(df_filtrado, file = &quot;datos/df_filtrado.csv&quot;)</code></pre>
 </div>
 
 

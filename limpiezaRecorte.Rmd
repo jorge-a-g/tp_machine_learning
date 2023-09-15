@@ -206,7 +206,7 @@ df_filtrado <- df_filtrado |>
 
 Guardo el dataframe resumido y con las transformaciones
 ```{r}
-write_csv(df_filtrado, file = "datos/df_filtrado.csv")
+#write_csv(df_filtrado, file = "datos/df_filtrado.csv")
 ```
 
 
