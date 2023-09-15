@@ -187,13 +187,13 @@ df_filtrado <- df_filtrado |>
 ```
 
 Transformo las fechas.
-```{r warning=FALSE}
+```{r warning = F}
 df_filtrado <- df_filtrado |> 
-  mutate(FECHA_APERTURA = ymd(FECHA_APERTURA), 
-            FIS = ymd(FIS), 
-            FECHA_INTERNACION = ymd(FECHA_INTERNACION), 
-            FECHA_CUI_INTENSIVOS = ymd(FECHA_CUI_INTENSIVOS), 
-            FECHA_FALLECIMIENTO = ymd(FECHA_FALLECIMIENTO))
+  mutate(FECHA_APERTURA = as_date(FECHA_APERTURA, "ymd"), 
+            FIS = as_date(FIS, "ymd"), 
+            FECHA_INTERNACION = as_date(FECHA_INTERNACION, "ymd"), 
+            FECHA_CUI_INTENSIVOS = as_date(FECHA_CUI_INTENSIVOS, "ymd"), 
+            FECHA_FALLECIMIENTO = as_date(FECHA_FALLECIMIENTO, "ymd"))
 ```
 
 Agrego tres columnas que servirán para el análisis. Una con el tiempo transcurrido entre la aparición de síntomas y la internación, y otra con el tiempo entre la internación y el ingreso a cuidados intensivos y otra con el tiempo entre el ingreso a cuidados intensivos y el fallecimiento.
