@@ -1,0 +1,193 @@
+---
+title: "Tp_PPyML"
+author: "Gonzalez / Shifres"
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+ 
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+
+```
+
+Casos COVID-19
+
+Portal de datos Abiertos del Ministerio de Salud de La Nación
+
+http://datos.salud.gob.ar
+
+Notificaciones realizadas por efectores de salud al Sistema Nacional de Vigilancia de la Salud al evento Caso Internado y/o fallecido por COVID-19 
+
+## Lectura y análisis de los datos
+
+```{r, echo=FALSE}
+
+## Lectura de los archivos
+
+covid19_limpio <- read_csv("datos/df_filtrado.csv")
+
+```
+
+Mostramos las primeras 10 observaciones que nos permite considerar la distribución 
+
+
+```{r, echo=FALSE}
+head(covid19_limpio,10)
+```
+
+```{r}
+
+#dimensión 
+dim(covid19_limpio)
+
+#246917 observaciones 19 variables
+
+ncol(covid19_limpio)
+nrow(covid19_limpio)
+
+#attributes(covid19_internados_fallecidos)
+attr(covid19_limpio,"names") 
+#[1] "IDEVENTOCASO"              "EVENTO"                    "EDAD_DIAGNOSTICO"         
+#[4] "PAIS_RESIDENCIA"           "ID_PROV_INDEC_RESIDENCIA"  "PROVINCIA_RESIDENCIA"     
+#[7] "ID_DEPTO_INDEC_RESIDENCIA" "DEPARTAMENTO_RESIDENCIA"   "FECHA_APERTURA"           
+#[10] "SEPI_APERTURA"             "FIS"                       "FECHA_INTERNACION"        
+#[13] "CUIDADO_INTENSIVO"         "FECHA_CUI_INTENSIVOS"      "FALLECIDO"                
+#[16] "FECHA_FALLECIMIENTO"       "ID_PROV_INDEC_CARGA"       "PROVINCIA_CARGA"          
+#[19] "CLASIFICACION_ALGORITMO"  
+
+attr(covid19_limpio,"class")  
+```
+analisis Variable EDAD
+
+```{r}
+
+summary(covid19_limpio$EDAD_DIAGNOSTICO)
+
+
+
+  
+  hist(covid19_limpio$EDAD_DIAGNOSTICO,
+     col='lightblue',
+     main='histograma Edades',
+     xlab='Edad',
+     ylab='Frecuencia')
+
+
+#covid19_internados_fallecidosEdad<-covid19_internados_fallecidos|> 
+#  filter(!is.na(EDAD_DIAGNOSTICO) & EDAD_DIAGNOSTICO<130)|> 
+#  group_by(EDAD_DIAGNOSTICO)|>
+#  summarise(count=n())
+
+```
+```{r}
+
+
+
+#boxplot
+boxplot(covid19_limpio$EDAD_DIAGNOSTICO,
+        data=covid19_limpio,
+        main='',
+        ylab='Edad',
+        col='steelblue',
+        border='black')
+
+
+
+```
+
+
+```{r}
+
+covid19_limpio |> 
+  filter(EDAD_DIAGNOSTICO>10) |>
+ggplot(aes(EDAD_DIAGNOSTICO))+
+  geom_histogram( bins = 20, color="black", aes(fill=as.factor(FALLECIDO)))+
+  scale_x_continuous(breaks=c(0,10,20,30,40,50,60,70,80,90,100,110,120,130))+
+  facet_wrap(~FALLECIDO) +
+  labs(title="Fallecidos por COVID por edad", subtitle="2020-2023") +
+  guides(fill = guide_legend("Fallecidos")) 
+
+
+
+  
+```
+
+
+```{r}
+covid19_limpio |> 
+  filter(EDAD_DIAGNOSTICO>10) |>
+ggplot(aes(EDAD_DIAGNOSTICO))+
+  geom_histogram( bins = 20, color="black", aes(fill=as.factor(CUIDADO_INTENSIVO)))+
+  scale_x_continuous(breaks=c(0,10,20,30,40,50,60,70,80,90,100,110,120,130))+
+  facet_wrap(~CUIDADO_INTENSIVO) +
+  labs(title="Internados en cuidados intensivos por COVID por edad", subtitle="2020-2023") +
+  guides(fill = guide_legend("CUIDADO_INTENSIVO")) 
+
+```
+
+
+```{r}
+
+covid19_limpio |> 
+  filter(FALLECIDO=="SI") |>
+ggplot(aes(EDAD_DIAGNOSTICO))+
+  geom_histogram( bins = 20, color="black", aes(fill=as.factor(CUIDADO_INTENSIVO)),center=2.5)+
+  scale_x_continuous(breaks=c(0,10,20,30,40,50,60,70,80,90,100,110,120,130))+
+  labs(title="Fallecidos por COVID que estuvieron en cuidados intensivos por edad", subtitle="2020-2023") +
+  guides(fill = guide_legend("CUIDADO_INTENSIVO"))
+
+```
+
+
+```{r}
+
+ggplot(covid19_limpio, aes(FALLECIDO, EDAD_DIAGNOSTICO,fill=FALLECIDO)) + 
+  geom_violin()+
+  labs(title="Fallecidos por COVID por edad", subtitle="2020-2023") 
+
+```
+
+```{r}
+covid19_limpio2<-covid19_limpio |>
+  select(EDAD_DIAGNOSTICO, FALLECIDO) |>
+  group_by(EDAD_DIAGNOSTICO, FALLECIDO) |>
+  summarise(total_count=n(),
+            .groups = 'drop')
+
+plot(x = covid19_limpio2$EDAD_DIAGNOSTICO, y = covid19_limpio2$total_count, col = factor(covid19_limpio2$FALLECIDO), xlab="Edad", ylab="Cantidad",main="Fallecidos por COVID por edad")
+legend(x = "topleft", legend = c("NO", "SI"), fill = c("Black", "Red"), title = "
+       Fallecido")
+
+
+```
+
+
+
+```{r}
+
+hist(covid19_limpio$SEPI_APERTURA,
+     main='COVID Internados/fallecidos por semana epidemiológica',
+     xlab='Semana epidemiológica',
+     ylab='Frecuencia')
+```
+
+
+Acá vemos que el pico se produce a partir de la semana epidemiológica 24 (junio) con lo cual coincide con el comienzo de la época invernal.
+
+
+
