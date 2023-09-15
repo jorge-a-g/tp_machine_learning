@@ -355,20 +355,24 @@ display: none;
 </div>
 
 
-<p>Casos COVID-19</p>
-<p>Portal de datos Abiertos del Ministerio de Salud de La Nación</p>
-<p><a href="http://datos.salud.gob.ar" class="uri">http://datos.salud.gob.ar</a></p>
-<p>Notificaciones realizadas por efectores de salud al Sistema Nacional
-de Vigilancia de la Salud al evento Caso Internado y/o fallecido por
-COVID-19</p>
+<div id="casos-covid-19" class="section level2">
+<h2>Casos COVID-19</h2>
+<p>Datos obtenidos del Portal de <a href="http://datos.salud.gob.ar">Datos Abiertos del Ministerio de Salud
+de La Nación</a>.</p>
+<p>Consiste en notificaciones realizadas por efectores de salud al
+Sistema Nacional de Vigilancia de la Salud (SNVS) al evento Caso
+Internado y/o fallecido por COVID-19.</p>
+</div>
 <div id="lectura-de-los-datos" class="section level2">
 <h2>Lectura de los datos</h2>
 <pre class="r"><code>## Lectura de los archivos
 covid19_internados_fallecidos &lt;- read_csv(&quot;datos/Covid19_Internados_y_Fallecidos.csv&quot;)</code></pre>
-<pre><code>## Rows: 257395 Columns: 19── Column specification ────────────────────────────────────────────────────────
+<pre><code>## Rows: 257395 Columns: 19
+## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr (16): EVENTO, PAIS_RESIDENCIA, ID_PROV_INDEC_RESIDENCIA, PROVINCIA_RESID...
 ## dbl  (3): IDEVENTOCASO, EDAD_DIAGNOSTICO, SEPI_APERTURA
+## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
@@ -421,10 +425,12 @@ names(covid19_internados_fallecidos)</code></pre>
 ## [19] &quot;CLASIFICACION_ALGORITMO&quot;</code></pre>
 <p>validación de Codigos de Provincia y etiquetas</p>
 <pre class="r"><code>provincias&lt;-read_csv(&quot;datos/provincias.csv&quot;)</code></pre>
-<pre><code>## Rows: 24 Columns: 9── Column specification ────────────────────────────────────────────────────────
+<pre><code>## Rows: 24 Columns: 9
+## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr (7): categoria, fuente, id, iso_id, iso_nombre, nombre, nombre_completo
 ## dbl (2): centroide_lat, centroide_lon
+## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <pre class="r"><code>provincias[provincias == &quot;Ciudad Autónoma de Buenos Aires&quot;] &lt;- &quot;CABA&quot;
@@ -507,8 +513,60 @@ el análisis para achicar el tamaño del dataset.</p>
          FALLECIDO, 
          FECHA_FALLECIMIENTO, 
          PROVINCIA_CARGA, 
-         CLASIFICACION_ALGORITMO, 
+         CLASIFICACION_ALGORITMO 
          )</code></pre>
+</div>
+<div id="descripción-de-las-variables-que-conservamos" class="section level2">
+<h2>Descripción de las variables que conservamos:</h2>
+<ul>
+<li>IDEVENTOCASO: identificador único del evento/caso</li>
+<li>EDAD_DIAGNOSTICO: edad del paciente al momento del diagnóstico</li>
+<li>PROVINCIA_RESIDENCIA: nombre de la provincia de residencia del
+paciente</li>
+<li>DEPARTAMENTO_RESIDENCIA: nombre del departamento/partido de
+residencia del paciente<br />
+</li>
+<li>FECHA_APERTURA: fecha en la que se inició el registró del
+evento/caso</li>
+<li>SEPI_APERTURA: semana epidemiológica en que se inició el registro
+del event/caso</li>
+<li>FIS: fecha en que el paciente comenzó con los síntomas<br />
+</li>
+<li>FECHA_INTERNACION: fecha de internación<br />
+</li>
+<li>CUIDADO_INTENSIVO: esta variable indica si el caso requirió cuidados
+intensivos</li>
+<li>FECHA_CUI_INTENSIVOS: fecha de ingreso en la unidad de cuidados
+intensivos</li>
+<li>FALLECIDO: esta variable indica si se trata de un fallecido<br />
+</li>
+<li>FECHA_FALLECIMIENTO: fecha de fallecimiento<br />
+</li>
+<li>PROVINCIA_CARGA: provincia en que se realizó la carga del
+evento/caso al SNVS</li>
+<li>CLASIFICACION_ALGORITMO: algoritmo de clasificación del
+evento/caso</li>
+</ul>
+</div>
+<div id="tipo-de-datos-en-cada-variable" class="section level2">
+<h2>Tipo de datos en cada variable</h2>
+<pre class="r"><code>glimpse(df_filtrado)</code></pre>
+<pre><code>## Rows: 257,395
+## Columns: 14
+## $ IDEVENTOCASO            &lt;dbl&gt; 36289556, 36434513, 36395160, 34915367, 333459…
+## $ EDAD_DIAGNOSTICO        &lt;dbl&gt; 17, 0, 0, 43, 23, 35, 8, 0, 0, 1, 88, 19, 7, 3…
+## $ PROVINCIA_RESIDENCIA    &lt;chr&gt; &quot;Santa Fe&quot;, &quot;Neuquén&quot;, &quot;Chubut&quot;, &quot;Buenos Aires…
+## $ DEPARTAMENTO_RESIDENCIA &lt;chr&gt; &quot;Rosario&quot;, &quot;Zapala&quot;, &quot;Rawson&quot;, &quot;Bolívar&quot;, &quot;Flo…
+## $ FECHA_APERTURA          &lt;chr&gt; &quot;2023/06/05 15:52:00.000000000&quot;, &quot;2023/08/07 1…
+## $ SEPI_APERTURA           &lt;dbl&gt; 23, 32, 29, 42, 23, 43, 13, 25, 33, 30, 42, 27…
+## $ FIS                     &lt;chr&gt; NA, &quot;2023/07/27 00:00:00.000000000&quot;, &quot;2023/07/…
+## $ FECHA_INTERNACION       &lt;chr&gt; NA, &quot;2023/07/29 00:00:00.000000000&quot;, &quot;2023/07/…
+## $ CUIDADO_INTENSIVO       &lt;chr&gt; &quot;NO&quot;, &quot;SI&quot;, &quot;NO&quot;, &quot;NO&quot;, &quot;NO&quot;, &quot;NO&quot;, &quot;NO&quot;, &quot;NO&quot;…
+## $ FECHA_CUI_INTENSIVOS    &lt;chr&gt; NA, &quot;2023/07/30 00:00:00.000000000&quot;, NA, NA, N…
+## $ FALLECIDO               &lt;chr&gt; &quot;NO&quot;, &quot;NO&quot;, &quot;NO&quot;, &quot;NO&quot;, &quot;NO&quot;, &quot;NO&quot;, &quot;NO&quot;, &quot;NO&quot;…
+## $ FECHA_FALLECIMIENTO     &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
+## $ PROVINCIA_CARGA         &lt;chr&gt; &quot;Santa Fe&quot;, &quot;Neuquén&quot;, &quot;Chubut&quot;, &quot;Buenos Aires…
+## $ CLASIFICACION_ALGORITMO &lt;chr&gt; &quot;SARS COV-2 Negativo por test de antígeno&quot;, &quot;V…</code></pre>
 <p>Verifico el rango de edades</p>
 <pre class="r"><code>range(df_filtrado$EDAD_DIAGNOSTICO, na.rm = T)</code></pre>
 <pre><code>## [1]    0 2019</code></pre>
