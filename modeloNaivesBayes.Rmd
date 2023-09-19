@@ -1,0 +1,108 @@
+---
+title: "modeloNaivesBayes"
+author: "González, Jorge / Shifres, Juan"
+date: "2023-09-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+library(tidyverse)
+library(lubridate)
+library(e1071)
+library(caret)
+library("caTools")
+
+
+```
+
+```{r}
+datos <- read.csv("datos/df_filtrado.csv")
+```
+
+
+
+
+```{r}
+
+
+datos <- datos |> 
+  select(FALLECIDO, EDAD_DIAGNOSTICO, SEPI_APERTURA, CUIDADO_INTENSIVO, CLASIFICACION_ALGORITMO ) |> 
+  filter(EDAD_DIAGNOSTICO>0) |> 
+  mutate(grupo_etario = case_when(EDAD_DIAGNOSTICO <= 20  ~ "grupo1_Menor_20",
+                                EDAD_DIAGNOSTICO >= 20 & EDAD_DIAGNOSTICO < 40  ~ "grupo2_20_40",
+                                EDAD_DIAGNOSTICO >= 40 & EDAD_DIAGNOSTICO < 50  ~ "grupo3_40_50",
+                                EDAD_DIAGNOSTICO >= 50 & EDAD_DIAGNOSTICO < 60  ~ "grupo4_50_60",
+                                EDAD_DIAGNOSTICO >= 60 & EDAD_DIAGNOSTICO < 70  ~ "grupo5_60_70",
+                                EDAD_DIAGNOSTICO >= 70 & EDAD_DIAGNOSTICO < 80  ~ "grupo6_70_80",
+                                EDAD_DIAGNOSTICO >= 80 ~ "grupo7_mas_80"))
+datos$grupo_etario <- as.factor(datos$grupo_etario)
+datos$FALLECIDO <- as.factor(datos$FALLECIDO)
+
+```
+
+
+```{r}
+
+# compruebo si hay asignación de clases
+str(datos)
+
+# compruebo si hay nulos o vacíos
+any(is.na(datos))
+
+```
+
+```{r}
+# Número de datos ausentes por variable
+
+map_dbl(datos, .f = function(x){sum(is.na(x))})
+
+```
+
+
+```{r}
+
+
+## *****************************************SPLIT del dataframe
+# particiono el dataframe en 2 partes
+
+
+sample <- sample.split(datos$FALLECIDO, SplitRatio = .70)
+#sample = muestra o muestras
+train.data <- subset(datos, sample==TRUE) 
+test.data <- subset(datos, sample==FALSE)
+
+#se verifica que la distribución de la variable FALLECIDO es similar en el conjunto de entrenamiento y en el de test
+
+prop.table(table(datos$FALLECIDO))
+
+prop.table(table(train.data$FALLECIDO))
+
+prop.table(table(test.data$FALLECIDO))
+
+```
+
+
+```{r}
+
+modelo_nB <- naiveBayes(FALLECIDO~.,train.data)
+modelo_nB
+
+```
+
+```{r}
+#Predecir los resultados de la base test
+
+clase <- predict(modelo_nB,test.data,type="class")
+  
+```
+
+```{r}
+# matriz de confusión
+
+confusionMatrix(table(clase,test.data$FALLECIDO))
+
+```
+
