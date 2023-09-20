@@ -28,7 +28,7 @@ datos <- read.csv("datos/df_filtrado.csv")
 
 
 datos <- datos |> 
-  select(FALLECIDO, EDAD_DIAGNOSTICO, SEPI_APERTURA, CUIDADO_INTENSIVO, CLASIFICACION_ALGORITMO ) |> 
+  select(FALLECIDO, EDAD_DIAGNOSTICO, SEPI_APERTURA, FECHA_INTERNACION, CUIDADO_INTENSIVO, CLASIFICACION_ALGORITMO) |> 
   filter(EDAD_DIAGNOSTICO>0) |> 
   mutate(grupo_etario = case_when(EDAD_DIAGNOSTICO <= 20  ~ "grupo1_Menor_20",
                                 EDAD_DIAGNOSTICO >= 20 & EDAD_DIAGNOSTICO < 40  ~ "grupo2_20_40",
@@ -45,18 +45,49 @@ datos$FALLECIDO <- as.factor(datos$FALLECIDO)
 
 ```{r}
 
+
+datos <- datos |> 
+  mutate(INTERNACION = ifelse(!is.na(FECHA_INTERNACION), "SI", "NO"))
+```
+
+
+```{r}
+listCovid=c('Co-detección de Influenza A y B', 'Co-detección de Influenza y OVR', 'Co-detección de Influenza y SARS COV 2', 'Co-detección de Influenza y VSR', 'Co-detección de SARS COV 2 y OVR', 'Co-detección de SARS COV 2 y VSR', 'Co-detección de VSR y OVR', 'Influenza A - H1N1', 'Influenza A - H3N2', 'Influenza A - sin subtipificar', 'Influenza B - linaje Victoria', 'Influenza B - sin linaje', 'SARS-COV-2 por métodos moleculares', 'SARS-COV-2 por test de antígeno', 'Virus sincicial respiratorio (VSR)')
+
+listSinCovid=c('Estudiado sin resultados positivos','SARS COV-2 Negativo por test de antígeno', 'Caso invalidado por epidemiología')
+  
+listOtrasInfecciones=c('Otro virus respiratorio', 'Virus sincicial respiratorio (VSR)')
+
+listSinClasificar=c('Sin clasificar')
+
+datos <- datos |> 
+  mutate(CLASIFICACION = case_when(CLASIFICACION_ALGORITMO %in% listCovid ~ "Covid",
+                                   CLASIFICACION_ALGORITMO %in% listSinCovid ~ "SinCovid",
+                                   CLASIFICACION_ALGORITMO %in% listOtrasInfecciones ~ "OtrasInfecciones",
+                                   CLASIFICACION_ALGORITMO %in% listSinClasificar ~ "SinClasificar"))
+
+datosFinal<-datos |> 
+  select(FALLECIDO, grupo_etario, INTERNACION, CUIDADO_INTENSIVO, CLASIFICACION)
+
+
+```
+
+
+
+```{r}
+
 # compruebo si hay asignación de clases
-str(datos)
+str(datosFinal)
 
 # compruebo si hay nulos o vacíos
-any(is.na(datos))
+any(is.na(datosFinal))
 
 ```
 
 ```{r}
 # Número de datos ausentes por variable
 
-map_dbl(datos, .f = function(x){sum(is.na(x))})
+map_dbl(datosFinal, .f = function(x){sum(is.na(x))})
 
 ```
 
@@ -68,14 +99,14 @@ map_dbl(datos, .f = function(x){sum(is.na(x))})
 # particiono el dataframe en 2 partes
 
 
-sample <- sample.split(datos$FALLECIDO, SplitRatio = .70)
+sample <- sample.split(datosFinal$FALLECIDO, SplitRatio = .70)
 #sample = muestra o muestras
-train.data <- subset(datos, sample==TRUE) 
-test.data <- subset(datos, sample==FALSE)
+train.data <- subset(datosFinal, sample==TRUE) 
+test.data <- subset(datosFinal, sample==FALSE)
 
 #se verifica que la distribución de la variable FALLECIDO es similar en el conjunto de entrenamiento y en el de test
 
-prop.table(table(datos$FALLECIDO))
+prop.table(table(datosFinal$FALLECIDO))
 
 prop.table(table(train.data$FALLECIDO))
 
@@ -104,7 +135,7 @@ clase <- predict(modelo_nB,test.data,type="class")
 ```{r}
 # matriz de confusión
 
-confusionMatrix(table(test.data$FALLECIDO,clase,dnn = c("Actual", "Predicha")))
+confusionMatrix(table(test.data$FALLECIDO,clase,dnn = c("Actual", "Predicción")))
 
 ```
 
