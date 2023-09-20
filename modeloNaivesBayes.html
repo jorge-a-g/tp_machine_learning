@@ -357,7 +357,12 @@ display: none;
 </div>
 
 
+<div id="cargar-librerias-y-set-de-datos" class="section level3">
+<h3>1) Cargar Librerias y set de datos</h3>
 <pre class="r"><code>datos &lt;- read.csv(&quot;datos/df_filtrado.csv&quot;)</code></pre>
+</div>
+<div id="preparar-set-de-datos" class="section level3">
+<h3>2) Preparar set de datos</h3>
 <pre class="r"><code>datos &lt;- datos |&gt; 
   select(FALLECIDO, EDAD_DIAGNOSTICO, SEPI_APERTURA, CUIDADO_INTENSIVO, CLASIFICACION_ALGORITMO ) |&gt; 
   filter(EDAD_DIAGNOSTICO&gt;0) |&gt; 
@@ -389,6 +394,9 @@ map_dbl(datos, .f = function(x){sum(is.na(x))})</code></pre>
 ##                       0                       0                       0 
 ##       CUIDADO_INTENSIVO CLASIFICACION_ALGORITMO            grupo_etario 
 ##                       0                       0                       0</code></pre>
+</div>
+<div id="crear-set-de-entrenamiento-y-de-test" class="section level3">
+<h3>3) Crear set de entrenamiento y de test</h3>
 <pre class="r"><code>## *****************************************SPLIT del dataframe
 # particiono el dataframe en 2 partes
 
@@ -412,6 +420,9 @@ prop.table(table(datos$FALLECIDO))</code></pre>
 <pre><code>## 
 ##         NO         SI 
 ## 0.97439333 0.02560667</code></pre>
+</div>
+<div id="crear-modelo-de-naive-bayes" class="section level3">
+<h3>4) Crear modelo de Naive Bayes</h3>
 <pre class="r"><code>modelo_nB &lt;- naiveBayes(FALLECIDO~.,train.data)
 modelo_nB</code></pre>
 <pre><code>## 
@@ -428,105 +439,109 @@ modelo_nB</code></pre>
 ## Conditional probabilities:
 ##     EDAD_DIAGNOSTICO
 ## Y        [,1]     [,2]
-##   NO 42.91563 31.03943
-##   SI 71.75318 18.96425
+##   NO 43.01101 31.01659
+##   SI 71.65130 19.31307
 ## 
 ##     SEPI_APERTURA
 ## Y        [,1]     [,2]
-##   NO 28.53301 13.10797
-##   SI 28.51172 13.88885
+##   NO 28.58107 13.11172
+##   SI 28.48752 13.98484
 ## 
 ##     CUIDADO_INTENSIVO
 ## Y            NO         SI
-##   NO 0.97655716 0.02344284
-##   SI 0.68339277 0.31660723
+##   NO 0.97634959 0.02365041
+##   SI 0.67626083 0.32373917
 ## 
 ##     CLASIFICACION_ALGORITMO
 ## Y    Caso invalidado por epidemiología Co-detección de Influenza A y B
-##   NO                      2.357006e-03                    5.356832e-05
+##   NO                      2.303438e-03                    2.008812e-05
 ##   SI                      0.000000e+00                    2.547122e-04
 ##     CLASIFICACION_ALGORITMO
 ## Y    Co-detección de Influenza y OVR Co-detección de Influenza y SARS COV 2
-##   NO                    8.303090e-04                           3.548901e-04
-##   SI                    0.000000e+00                           1.018849e-03
+##   NO                    9.173575e-04                           3.749782e-04
+##   SI                    0.000000e+00                           1.528273e-03
 ##     CLASIFICACION_ALGORITMO
 ## Y    Co-detección de Influenza y VSR Co-detección de SARS COV 2 y OVR
-##   NO                    8.035248e-04                     5.758594e-04
-##   SI                    2.547122e-04                     0.000000e+00
+##   NO                    7.767406e-04                     6.160357e-04
+##   SI                    7.641365e-04                     5.094244e-04
 ##     CLASIFICACION_ALGORITMO
 ## Y    Co-detección de SARS COV 2 y VSR Co-detección de VSR y OVR
-##   NO                     3.481941e-04              1.848107e-03
-##   SI                     2.547122e-04              2.547122e-04
+##   NO                     3.281060e-04              1.848107e-03
+##   SI                     5.094244e-04              2.547122e-04
 ##     CLASIFICACION_ALGORITMO
 ## Y    Estudiado sin resultados positivos Influenza A - H1N1 Influenza A - H3N2
-##   NO                       4.083647e-01       5.530929e-03       1.493217e-03
-##   SI                       1.428935e-01       2.547122e-03       5.094244e-04
+##   NO                       4.074808e-01       5.423792e-03       1.540089e-03
+##   SI                       1.510443e-01       3.820683e-03       5.094244e-04
 ##     CLASIFICACION_ALGORITMO
 ## Y    Influenza A - sin subtipificar Influenza B - linaje Victoria
-##   NO                   1.001728e-02                  1.928460e-03
-##   SI                   1.375446e-02                  5.094244e-04
+##   NO                   1.018468e-02                  1.961940e-03
+##   SI                   1.375446e-02                  2.547122e-04
 ##     CLASIFICACION_ALGORITMO
 ## Y    Influenza B - sin linaje Otro virus respiratorio
-##   NO             6.501855e-03            1.921094e-02
-##   SI             2.547122e-03            4.075395e-03
+##   NO             6.602295e-03            1.898327e-02
+##   SI             3.311258e-03            4.330107e-03
 ##     CLASIFICACION_ALGORITMO
 ## Y    SARS-COV-2 por métodos moleculares SARS-COV-2 por test de antígeno
-##   NO                       5.488744e-02                    4.695933e-02
-##   SI                       1.388181e-01                    1.569027e-01
+##   NO                       5.496779e-02                    4.687228e-02
+##   SI                       1.360163e-01                    1.479878e-01
 ##     CLASIFICACION_ALGORITMO
 ## Y    SARS COV-2 Descartado por pruebas moleculares (con Ag positivo)
 ##   NO                                                    6.026436e-05
 ##   SI                                                    0.000000e+00
 ##     CLASIFICACION_ALGORITMO
 ## Y    SARS COV-2 Negativo por test de antígeno Sin clasificar
-##   NO                             3.020450e-01   1.164977e-01
-##   SI                             1.905247e-01   3.418237e-01
+##   NO                             3.025606e-01   1.171472e-01
+##   SI                             1.905247e-01   3.408049e-01
 ##     CLASIFICACION_ALGORITMO
 ## Y    Virus sincicial respiratorio (VSR)
-##   NO                       1.933147e-02
-##   SI                       3.056546e-03
+##   NO                       1.903015e-02
+##   SI                       3.820683e-03
 ## 
 ##     grupo_etario
 ## Y    grupo1_Menor_20 grupo2_20_40 grupo3_40_50 grupo4_50_60 grupo5_60_70
-##   NO      0.33155442   0.13104150   0.06941115   0.08022525   0.11181717
-##   SI      0.02419766   0.04737646   0.04839531   0.08176261   0.15944982
+##   NO      0.33031565   0.13000362   0.06972586   0.08118279   0.11282827
+##   SI      0.02750891   0.04890474   0.04712175   0.07921549   0.15562914
 ##     grupo_etario
 ## Y    grupo6_70_80 grupo7_mas_80
-##   NO   0.13062635    0.14532416
-##   SI   0.23306164    0.40575650</code></pre>
+##   NO   0.13115533    0.14478847
+##   SI   0.22389200    0.41772797</code></pre>
 <pre class="r"><code>#Predecir los resultados de la base test
 
 clase &lt;- predict(modelo_nB,test.data,type=&quot;class&quot;)</code></pre>
+</div>
+<div id="probar-modelo" class="section level3">
+<h3>5) Probar modelo</h3>
 <pre class="r"><code># matriz de confusión
 
-confusionMatrix(table(clase,test.data$FALLECIDO))</code></pre>
+confusionMatrix(table(test.data$FALLECIDO,clase,dnn = c(&quot;Actual&quot;, &quot;Predicha&quot;)))</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
-##      
-## clase    NO    SI
-##    NO 63511  1331
-##    SI   493   351
+##       Predicha
+## Actual    NO    SI
+##     NO 63552   452
+##     SI  1331   351
 ##                                           
-##                Accuracy : 0.9722          
-##                  95% CI : (0.9709, 0.9735)
-##     No Information Rate : 0.9744          
-##     P-Value [Acc &gt; NIR] : 0.9997          
+##                Accuracy : 0.9729          
+##                  95% CI : (0.9716, 0.9741)
+##     No Information Rate : 0.9878          
+##     P-Value [Acc &gt; NIR] : 1               
 ##                                           
-##                   Kappa : 0.2653          
+##                   Kappa : 0.2704          
 ##                                           
 ##  Mcnemar&#39;s Test P-Value : &lt;2e-16          
 ##                                           
-##             Sensitivity : 0.9923          
-##             Specificity : 0.2087          
-##          Pos Pred Value : 0.9795          
-##          Neg Pred Value : 0.4159          
-##              Prevalence : 0.9744          
-##          Detection Rate : 0.9669          
-##    Detection Prevalence : 0.9872          
-##       Balanced Accuracy : 0.6005          
+##             Sensitivity : 0.9795          
+##             Specificity : 0.4371          
+##          Pos Pred Value : 0.9929          
+##          Neg Pred Value : 0.2087          
+##              Prevalence : 0.9878          
+##          Detection Rate : 0.9675          
+##    Detection Prevalence : 0.9744          
+##       Balanced Accuracy : 0.7083          
 ##                                           
 ##        &#39;Positive&#39; Class : NO              
 ## </code></pre>
+</div>
 
 
 

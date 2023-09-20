@@ -4,16 +4,15 @@ author: "González, Jorge / Shifres, Juan"
 date: "2023-09-19"
 output: html_document
 ---
-
+### 1) Cargar Librerias y set de datos
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 
 library(tidyverse)
-library(lubridate)
 library(e1071)
 library(caret)
-library("caTools")
+library(caTools)
 
 
 ```
@@ -24,7 +23,7 @@ datos <- read.csv("datos/df_filtrado.csv")
 
 
 
-
+### 2) Preparar set de datos
 ```{r}
 
 
@@ -61,7 +60,7 @@ map_dbl(datos, .f = function(x){sum(is.na(x))})
 
 ```
 
-
+### 3) Crear set de entrenamiento y de test
 ```{r}
 
 
@@ -84,9 +83,10 @@ prop.table(table(test.data$FALLECIDO))
 
 ```
 
-
+### 4) Crear modelo de Naive Bayes
 ```{r}
 
+set.seed(2023)
 modelo_nB <- naiveBayes(FALLECIDO~.,train.data)
 modelo_nB
 
@@ -99,10 +99,12 @@ clase <- predict(modelo_nB,test.data,type="class")
   
 ```
 
+### 5) Probar modelo
+
 ```{r}
 # matriz de confusión
 
-confusionMatrix(table(clase,test.data$FALLECIDO))
+confusionMatrix(table(test.data$FALLECIDO,clase,dnn = c("Actual", "Predicha")))
 
 ```
 
